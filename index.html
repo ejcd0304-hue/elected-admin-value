@@ -1,1 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elected Admin Value List</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+    body { background: #090c12; color: #f8fafc; padding: 20px; }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; background: #131926; padding: 16px 20px; border-radius: 14px; border: 1px solid #232d42; margin-bottom: 20px; }
+    header p { color: #94a3b8; font-size: .85rem; }
+    h1 { font-size: 1.5rem; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tab { background: #1c2436; color: #94a3b8; border: 1px solid #2b364f; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 700; transition: .2s; }
+    .tab.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+    .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    input, select { background: #131926; color: #fff; border: 1px solid #232d42; padding: 10px 12px; border-radius: 8px; font-size: .9rem; }
+    input { flex: 1; min-width: 180px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 14px; }
+    @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .card { background: #131926; border: 1px solid #232d42; border-radius: 14px; padding: 14px; cursor: pointer; transition: .2s; display: flex; flex-direction: column; gap: 10px; animation: pop .25s ease; }
+    .card:hover { transform: translateY(-3px); border-color: #3b82f6; }
+    .top { display: flex; align-items: center; gap: 10px; }
+    .icon { width: 44px; height: 44px; background: #0b0f17; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .sub { font-size: .75rem; color: #94a3b8; }
+    .val-box { display: flex; justify-content: space-between; align-items: center; background: #0b0f17; padding: 8px 12px; border-radius: 8px; }
+    .val { font-size: 1.2rem; font-weight: 800; }
+    .tag { font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+    .Overpaid { background: rgba(168,85,247,.2); color: #d8b4fe; }
+    .Underpaid { background: rgba(239,68,68,.2); color: #fca5a5; }
+    .Fair { background: rgba(59,130,246,.2); color: #93c5fd; }
+    .meta { font-size: .8rem; color: #94a3b8; display: flex; justify-content: space-between; }
+    .hidden { display: none !important; }
+    .calc-search-bar { margin-bottom: 14px; }
+    .calc-search-bar input { width: 100%; }
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 720px) { .calc-grid { grid-template-columns: 1fr; } }
+    .box { background: #131926; border: 1px solid #232d42; border-radius: 14px; padding: 16px; }
+    .c-search { width: 100%; margin-top: 10px; background: #0b0f17; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; max-height: 140px; overflow-y: auto; background: #0b0f17; padding: 8px; border-radius: 8px; margin: 10px 0; }
+    .chip { background: #1c2436; color: #fff; border: 1px solid #2b364f; padding: 5px 9px; border-radius: 6px; font-size: .78rem; cursor: pointer; }
+    .chip:hover { border-color: #3b82f6; }
+    .row { display: flex; justify-content: space-between; align-items: center; background: #0b0f17; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; font-size: .88rem; animation: pop .2s ease; }
+    .del { background: #ef4444; color: #fff; border: none; border-radius: 4px; padding: 3px 8px; margin-left: 8px; cursor: pointer; font-weight: 700; }
+    .verdict { background: #131926; border: 1px solid #232d42; border-radius: 14px; padding: 16px; text-align: center; margin-top: 16px; }
+    .verdict p { color: #94a3b8; margin: 6px 0 12px; }
+    .v-btns { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .chat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .chat-feed { height: 360px; overflow-y: auto; background: #0b0f17; border: 1px solid #232d42; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .msg { background: #131926; border: 1px solid #232d42; padding: 10px 12px; border-radius: 10px; animation: pop .2s ease; }
+    .msg-head { display: flex; justify-content: space-between; font-size: .78rem; color: #60a5fa; font-weight: 700; margin-bottom: 4px; }
+    .msg-time { color: #64748b; font-weight: 400; }
+    .msg-body { font-size: .9rem; color: #f1f5f9; word-break: break-word; }
+    .chat-form { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chat-form input:first-child { max-width: 190px; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,.8); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 99; }
+    .modal-box { background: #131926; border: 1px solid #3b82f6; border-radius: 16px; padding: 20px; width: 100%; max-width: 500px; animation: pop .2s ease; }
+    .m-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .m-graph { background: #0b0f17; padding: 12px; border-radius: 10px; margin-bottom: 12px; }
+    .m-info { display: flex; justify-content: space-between; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Elected Admin Value List</h1>
+        <p>Value List • Trade Calculator • Live Trading Chat</p>
+      </div>
+      <div class="tabs">
+        <button type="button" class="tab active" id="btnList">Value List</button>
+        <button type="button" class="tab" id="btnCalc">Trade Calculator</button>
+        <button type="button" class="tab" id="btnChat">Trading Chat</button>
+      </div>
+    </header>
 
+    <div id="viewList">
+      <div class="filters">
+        <input id="q" placeholder="Search item..." />
+        <select id="cat"><option value="ALL">All Categories</option></select>
+        <select id="stat">
+          <option value="ALL">All Status</option>
+          <option value="Overpaid">Overpaid</option>
+          <option value="Fair">Fair</option>
+          <option value="Underpaid">Underpaid</option>
+        </select>
+      </div>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div id="viewCalc" class="hidden">
+      <div class="calc-search-bar">
+        <input id="calcGlobalSearch" placeholder="Search items across both sides..." />
+      </div>
+      <div class="calc-grid">
+        <div class="box">
+          <h3>Your Offer: <span id="yTot" style="color:#60a5fa;">0</span></h3>
+          <input id="ySearch" class="c-search" placeholder="Filter your side..." />
+          <div class="chips" id="yChips"></div>
+          <div id="yList"></div>
+        </div>
+        <div class="box">
+          <h3>Their Offer: <span id="tTot" style="color:#34d399;">0</span></h3>
+          <input id="tSearch" class="c-search" placeholder="Filter their side..." />
+          <div class="chips" id="tChips"></div>
+          <div id="tList"></div>
+        </div>
+      </div>
+      <div class="verdict">
+        <h2 id="vTitle">Add items to calculate</h2>
+        <p id="vSub">Search or click any item button above to add it</p>
+        <div class="v-btns">
+          <button type="button" class="tab" id="btnPostTrade">Post Trade to Chat</button>
+          <button type="button" class="tab" id="btnClear">Clear Trade</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="viewChat" class="hidden">
+      <div class="box">
+        <div class="chat-top">
+          <h3>Live Trading Chat</h3>
+          <span style="color:#10b981;font-size:.8rem;font-weight:700;">● Online</span>
+        </div>
+        <div class="chat-feed" id="chatFeed"></div>
+        <form id="chatForm" class="chat-form">
+          <input id="chatUser" placeholder="Username" maxlength="20" required />
+          <input id="chatMsg" placeholder="Write your trade offer..." maxlength="200" required />
+          <button type="submit" class="tab active">Send</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modal">
+    <div class="modal-box">
+      <div class="m-top">
+        <h2 id="mTitle"></h2>
+        <button type="button" class="del" id="mClose">✕</button>
+      </div>
+      <div id="mGraph" class="m-graph"></div>
+      <div id="mInfo" class="m-info"></div>
+    </div>
+  </div>
+
+  <script>
+    var DB_URL = "https://firebasedatabase.app";
+
+    var raw = [
+      "🎆|firework.png|Firework|Limited|550000|Rising|410,440,475,510,550|Ultra Limited • 10/10 Demand|5|2026-11-25 19:33",
+      "🗿|skibidi.png|Skibidi Toilet|Jail|200000|Stable|135,150,165,182,200|Very Expensive Daily Shop Block • 9.5/10 Demand|20|2026-11-25 19:42",
+      "🧨|eventtnt.png|Event TNT|Event|185000|Rising|135,148,160,172,185|Limited Event • 9/10 Demand|40|2026-11-25 19:33",
+      "🤡|clownbomb.png|Clown Bomb|Limited|175000|Stable|185,175,160,145,175|Limited Code • 9/10 Demand|50|2026-11-25 19:33",
+      "🔮|jumporb.png|Jump Orb Block|Event|175000|Rising|130,140,152,163,175|Limited Event • 8/10 Demand|60|2026-11-25 19:33",
+      "🏆|goldhallowsjail.png|Gold Hallows Jail|Limited|85000|Rising|65,70,75,80,85|Halloween Event • 9/10 Demand|1200|2026-11-26 11:10",
+      "🔫|shotgunsentry.png|Shotgun Sentry|Robux|80000|Rising|55,60,66,73,80|Robux Exclusive • 9/10 Demand|850|2026-11-25 18:38",
+      "⛏️|silverpickaxe.png|Silver Pickaxe|Gear|65000|Rising|55,57,60,62.5,65|Daily Shop • 9/10 Demand|3000|2026-11-25 19:33",
+      "🥈|silverhallowsjail.png|Silver Hallows Jail|Limited|60000|Stable|60,60,60,60,60|Halloween Event • 8/10 Demand|3500|2026-11-26 11:10",
+"💃|friday.png|Friday|Emote|55000|Rising|38,42,46,50,55|Daily Shop • 9/10 Demand|1400|2026-11-25 18:38",
+"🍔|cheezburger.png|Cheezburger|Event|50000|Unstable|76,82,88,95,50|Retro Pass • 8/10 Demand|15000|2026-11-25 19:10",
+"🎃|hallowsjail.png|Hallows Jail|Limited|45000|Stable|90,82,76,70,45|Halloween Event • 7/10 Demand|9000|2026-11-25 19:42",
+"☁️|cloudyemote.png|Cloudy Emote|Emote|45000|Rising|30,33.5,37,41,45|Daily Shop • 8/10 Demand|1800|2026-11-25 17:45",
+"🎁|redgift.png|Red Gift|Event|44000|Unstable|60,55,51,48,44|Xmas Event • 7/10 Demand|12000|2026-11-25 19:03",
+"🕺|soretro.png|So Retro|Emote|40000|Rising|28,31,34,37,40|Retro Emote • 7/10 Demand|8500|2026-11-26 11:09",
+"🟦|bluegift.png|Blue Gift|Event|39000|Unstable|52,48,45,42,39|Xmas Event • 7/10 Demand|13000|2026-11-25 19:03",
+"🟩|greengift.png|Green Gift|Event|38000|Stable|38,38,38,38,38|Xmas Event • 6/10 Demand|15000|2026-11-25 19:03",
+"👻|phantomtnt.png|Phantom TNT|Event|35000|Stable|35,35,35,35,35|Halloween Event • 6/10 Demand|14000|2026-11-25 19:58",
+"🔥|fieryadminium.png|Fiery Adminium|Skin|30000|Stable|30,30,30,30,30|Adminium Skin • 7/10 Demand|2200|2026-11-12 13:20",
+"🥟|eggroll.png|Eggroll|Event|30000|Stable|30,30,30,30,30|Event Item • 6/10 Demand|20000|2026-11-25 19:46",
+"🚀|jetpack.png|Jetpack|Gear|30000|Stable|30,30,30,30,30|Rare Gear • 4/10 Demand|16000|2026-11-26 05:52",
+"🍰|cakeplate.png|Cake Plate|Event|28000|Stable|28,28,28,28,28|Event Item • 6/10 Demand|16000|2026-11-26 11:09",
+"☣️|infectedadminium.png|Infected Adminium|Skin|26000|Stable|26,26,26,26,26|Adminium Skin • 7/10 Demand|2500|2026-11-11 17:05"
+];
+var items = raw.map(function (line, i) {
+var p = line.split("|");
+var emoji = p.shift(), img = p.shift(), name = p.shift(), cat = p.shift();
+var val = Number(p.shift()), trend = p.shift(), histStr = p.shift();
+var info = p.shift(), circ = Number(p.shift()), upd = p.shift();
+var hist = histStr.split(",").map(Number);
+var first = hist.slice(0, 1).pop(), last = hist.slice(-1).pop();
+var status = (trend === "Rising" || last > first) ? "Overpaid" : (trend === "Unstable" || last < first) ? "Underpaid" : "Fair";
+return { id: i, emoji: emoji, name: name, cat: cat, val: val, trend: trend, status: status, hist: hist, info: info, circ: circ, upd: upd };
+});
+var cats = [];
+items.forEach(function (x) { if (cats.indexOf(x.cat) === -1) cats.push(x.cat); });
+cats.forEach(function (c) {
+var o = document.createElement("option");
+o.value = c; o.textContent = c;
+document.getElementById("cat").appendChild(o);
+});
+function svgLine(pts, big) {
+var w = big ? 440 : 90, h = big ? 150 : 24, pad = big ? 24 : 4;
+var min = Math.min.apply(null, pts), max = Math.max.apply(null, pts), r = max - min || 1;
+var first = pts.slice(0, 1).pop(), last = pts.slice(-1).pop();
+var col = last > first ? "#10b981" : last < first ? "#ef4444" : "#38bdf8";
+var c = pts.map(function (v, idx) {
+return { x: (pad + (idx / (pts.length - 1)) * (w - pad * 2)).toFixed(1), y: (h - pad - ((v - min) / r) * (h - pad * 2)).toFixed(1), v: v };
+});
+var poly = c.map(function (pt) { return pt.x + "," + pt.y; }).join(" ");
+var dots = c.map(function (pt) {
+return '' +
+(big ? '' + pt.v + 'k' : '');
+}).join("");
+return '' + dots + '';
+}
+function drawList() {
+var q = document.getElementById("q").value.toLowerCase();
+var c = document.getElementById("cat").value;
+var s = document.getElementById("stat").value;
+document.getElementById("grid").innerHTML = items.filter(function (x) {
+return x.name.toLowerCase().indexOf(q) !== -1 && (c === "ALL" || x.cat === c) && (s === "ALL" || x.status === s);
+}).map(function (x) {
+return '' +
+'' + x.emoji + '' + x.name + '' + x.cat + ' • ' + x.info + '' +
+'' + x.val.toLocaleString() + '' + x.status + '' +
+'Circ: ' + x.circ.toLocaleString() + '' + x.trend + '' +
+'' + svgLine(x.hist, false) + '' +
+'';
+}).join("");
+}
+document.getElementById("grid").onclick = function (e) {
+var card = e.target.closest(".card");
+if (!card) return;
+var x = items.find(function (item) { return item.id === Number(card.getAttribute("data-id")); });
+if (!x) return;
+var first = x.hist.slice(0, 1).pop(), last = x.hist.slice(-1).pop();
+var dir = last > first ? "▲ UP (Rising)" : last < first ? "▼ DOWN (Dropping)" : "▬ FLAT (Stable)";
+document.getElementById("mTitle").textContent = x.emoji + " " + x.name;
+document.getElementById("mGraph").innerHTML = svgLine(x.hist, true);
+document.getElementById("mInfo").innerHTML = '' + dir + '' + x.status + '' + x.val.toLocaleString() + '';
+document.getElementById("modal").classList.remove("hidden");
+};
+document.getElementById("mClose").onclick = function () { document.getElementById("modal").classList.add("hidden"); };
+document.getElementById("q").oninput = drawList;
+document.getElementById("cat").onchange = drawList;
+document.getElementById("stat").onchange = drawList;
+function switchTab(tabId, viewId) {
+["btnList", "btnCalc", "btnChat"].forEach(function (id) { document.getElementById(id).classList.remove("active"); });
+["viewList", "viewCalc", "viewChat"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
+document.getElementById(tabId).classList.add("active");
+document.getElementById(viewId).classList.remove("hidden");
+}
+document.getElementById("btnList").onclick = function () { switchTab("btnList", "viewList"); };
+document.getElementById("btnCalc").onclick = function () { switchTab("btnCalc", "viewCalc"); };
+document.getElementById("btnChat").onclick = function () { switchTab("btnChat", "viewChat"); loadChat(); };
+var yArr = [], tArr = [];
+function renderChips(searchId, boxId) {
+var globalTerm = document.getElementById("calcGlobalSearch").value.toLowerCase();
+var sideTerm = document.getElementById(searchId).value.toLowerCase();
+var term = sideTerm || globalTerm;
+document.getElementById(boxId).innerHTML = items.filter(function (x) {
+return x.name.toLowerCase().indexOf(term) !== -1 || x.cat.toLowerCase().indexOf(term) !== -1;
+}).map(function (x) {
+return '' + x.emoji + ' ' + x.name + ' (' + (x.val / 1000) + 'k)';
+}).join("");
+}
+function refreshAllChips() {
+renderChips("ySearch", "yChips");
+renderChips("tSearch", "tChips");
+}
+document.getElementById("calcGlobalSearch").oninput = refreshAllChips;
+document.getElementById("ySearch").oninput = function () { renderChips("ySearch", "yChips"); };
+document.getElementById("tSearch").oninput = function () { renderChips("tSearch", "tChips"); };
+refreshAllChips();
+function drawCalc() {
+function side(arr, listId, totId, key) {
+var sum = arr.reduce(function (a, b) { return a + b.val; }, 0);
+document.getElementById(totId).textContent = sum.toLocaleString();
+document.getElementById(listId).innerHTML = arr.map(function (x, idx) {
+return '' + x.emoji + ' ' + x.name + '' + x.val.toLocaleString() + '✕';
+}).join("");
+return sum;
+}
+var y = side(yArr, "yList", "yTot", "y");
+var t = side(tArr, "tList", "tTot", "t");
+var vt = document.getElementById("vTitle"), vs = document.getElementById("vSub");
+if (!y && !t) { vt.textContent = "Add items to calculate"; vt.style.color = "#fff"; vs.textContent = "Search or click any item button above to add it"; return; }
+var diff = t - y, pct = y ? Math.abs(diff) / y : 1;
+if (diff > 0 && pct > 0.05) { vt.textContent = "OVERPAID (+" + diff.toLocaleString() + ")"; vt.style.color = "#10b981"; vs.textContent = "They are overpaying you!"; }
+else if (diff < 0 && pct > 0.05) { vt.textContent = "UNDERPAID (" + diff.toLocaleString() + ")"; vt.style.color = "#ef4444"; vs.textContent = "They are underpaying you!"; }
+else { vt.textContent = "FAIR TRADE (" + (diff >= 0 ? "+" : "") + diff.toLocaleString() + ")"; vt.style.color = "#38bdf8"; vs.textContent = "Even trade value"; }
+}
+document.getElementById("yChips").onclick = function (e) {
+var b = e.target.closest(".chip");
+if (!b) return;
+var found = items.find(function (item) { return item.id === Number(b.getAttribute("data-id")); });
+if (found) { yArr.push(found); drawCalc(); }
+};
+document.getElementById("tChips").onclick = function (e) {
+var b = e.target.closest(".chip");
+if (!b) return;
+var found = items.find(function (item) { return item.id === Number(b.getAttribute("data-id")); });
+if (found) { tArr.push(found); drawCalc(); }
+};
+document.getElementById("viewCalc").onclick = function (e) {
+var d = e.target.closest(".del");
+if (d) {
+if (d.getAttribute("data-side") === "y") yArr.splice(Number(d.getAttribute("data-idx")), 1);
+else tArr.splice(Number(d.getAttribute("data-idx")), 1);
+drawCalc();
+}
+};
+document.getElementById("btnClear").onclick = function () { yArr = []; tArr = []; drawCalc(); };
+var chatMsgs = [];
+function esc(s) {
+return String(s).replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
+}
+function drawChat() {
+var feed = document.getElementById("chatFeed");
+if (!chatMsgs.length) {
+feed.innerHTML = 'No messages yet. Post the first trade!';
+return;
+}
+feed.innerHTML = chatMsgs.map(function (m) {
+return '@' + esc(m.user) + '' + esc(m.time) + '' + esc(m.text) + '';
+}).join("");
+feed.scrollTop = feed.scrollHeight;
+}
+function loadChat() {
+fetch(DB_URL)
+.then(function (r) { return r.json(); })
+.then(function (data) {
+if (data && data.error) {
+document.getElementById("chatFeed").innerHTML = 'Firebase Error: ' + esc(data.error) + '';
+return;
+}
+if (!data) { chatMsgs = []; drawChat(); return; }
+chatMsgs = Object.keys(data).map(function (k) { return data[k]; });
+drawChat();
+})
+.catch(function (err) {
+document.getElementById("chatFeed").innerHTML = 'Connection Error: ' + esc(err.message) + '';
+});
+}
+function addChat(user, text) {
+var now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+fetch(DB_URL, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ user: user, text: text, time: now })
+})
+.then(function (r) { return r.json(); })
+.then(function (res) {
+if (res && res.error) { alert("Chat Error: " + res.error); return; }
+loadChat();
+})
+.catch(function (err) { alert("Failed to send: " + err.message); });
+}
+document.getElementById("chatForm").onsubmit = function (e) {
+e.preventDefault();
+var u = document.getElementById("chatUser").value.trim();
+var m = document.getElementById("chatMsg").value.trim();
+if (!u || !m) return;
+addChat(u, m);
+document.getElementById("chatMsg").value = "";
+};
+document.getElementById("btnPostTrade").onclick = function () {
+if (!yArr.length && !tArr.length) return;
+var yourTxt = yArr.length ? yArr.map(function (x) { return x.emoji + x.name; }).join(", ") : "Offers";
+var theirTxt = tArr.length ? tArr.map(function (x) { return x.emoji + x.name; }).join(", ") : "Good Offers";
+var name = document.getElementById("chatUser").value.trim() || "Trader";
+addChat(name, "Trading [" + yourTxt + "] for [" + theirTxt + "]");
+switchTab("btnChat", "viewChat");
+};
+setInterval(loadChat, 3000);
+drawList();
+loadChat()
