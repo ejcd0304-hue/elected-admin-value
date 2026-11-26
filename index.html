@@ -146,40 +146,48 @@
   <script>
     var DB_URL = "https://firebasedatabase.app";
 
-    var items = [
-      { id: 0, emoji: "🎆", name: "Firework", cat: "Limited", val: 550000, trend: "Rising", status: "Overpaid", hist:, info: "Ultra Limited • 10/10 Demand", circ: 5 },
-      { id: 1, emoji: "🗿", name: "Skibidi Toilet", cat: "Jail", val: 200000, trend: "Stable", status: "Overpaid", hist:, info: "Very Expensive Daily Shop Block • 9.5/10 Demand", circ: 20 },
-      { id: 2, emoji: "🧨", name: "Event TNT", cat: "Event", val: 185000, trend: "Rising", status: "Overpaid", hist:, info: "Limited Event • 9/10 Demand", circ: 40 },
-      { id: 3, emoji: "🤡", name: "Clown Bomb", cat: "Limited", val: 175000, trend: "Stable", status: "Underpaid", hist:, info: "Limited Code • 9/10 Demand", circ: 50 },
-      { id: 4, emoji: "🔮", name: "Jump Orb Block", cat: "Event", val: 175000, trend: "Rising", status: "Overpaid", hist:, info: "Limited Event • 8/10 Demand", circ: 60 },
-      { id: 5, emoji: "🏆", name: "Gold Hallows Jail", cat: "Limited", val: 85000, trend: "Rising", status: "Overpaid", hist:, info: "Halloween Event • 9/10 Demand", circ: 1200 },
-      { id: 6, emoji: "🔫", name: "Shotgun Sentry", cat: "Robux", val: 80000, trend: "Rising", status: "Overpaid", hist:, info: "Robux Exclusive • 9/10 Demand", circ: 850 },
+    var raw = [
+      "🎆|Firework|Limited|550000|Rising|410,440,475,510,550|Ultra Limited • 10/10 Demand|5",
+      "🗿|Skibidi Toilet|Jail|200000|Stable|135,150,165,182,200|Very Expensive Daily Shop Block • 9.5/10 Demand|20",
+      "🧨|Event TNT|Event|185000|Rising|135,148,160,172,185|Limited Event • 9/10 Demand|40",
+      "🤡|Clown Bomb|Limited|175000|Stable|185,175,160,145,175|Limited Code • 9/10 Demand|50",
+      "🔮|Jump Orb Block|Event|175000|Rising|130,140,152,163,175|Limited Event • 8/10 Demand|60",
+      "🏆|Gold Hallows Jail|Limited|85000|Rising|65,70,75,80,85|Halloween Event • 9/10 Demand|1200",
+      "🔫|Shotgun Sentry|Robux|80000|Rising|55,60,66,73,80|Robux Exclusive • 9/10 Demand|850",
+      "⛏️|Silver Pickaxe|Gear|65000|Rising|55,57,60,62.5,65|Daily Shop • 9/10 Demand|3000",
+      "🥈|Silver Hallows Jail|Limited|60000|Stable|60,60,60,60,60|Halloween Event • 8/10 Demand|3500",
+      "💃|Friday|Emote|55000|Rising|38,42,46,50,55|Daily Shop • 9/10 Demand|1400",
+      "🍔|Cheezburger|Event|50000|Unstable|76,82,88,95,50|Retro Pass • 8/10 Demand|15000",
+      "🎃|Hallows Jail|Limited|45000|Stable|90,82,76,70,45|Halloween Event • 7/10 Demand|9000",
+      "☁️|Cloudy Emote|Emote|45000|Rising|30,33.5,37,41,45|Daily Shop • 8/10 Demand|1800",
+      "🎁|Red Gift|Event|44000|Unstable|60,55,51,48,44|Xmas Event • 7/10 Demand|12000",
+      "🕺|So Retro|Emote|40000|Rising|28,31,34,37,40|Retro Emote • 7/10 Demand|8500",
+      "🟦|Blue Gift|Event|39000|Unstable|52,48,45,42,39|Xmas Event • 7/10 Demand|13000",
 Use code with caution.
-{ id: 7, emoji: "⛏️", name: "Silver Pickaxe", cat: "Gear", val: 65000, trend: "Rising", status: "Overpaid", hist: [55, 57, 60, 62.5, 65], info: "Daily Shop • 9/10 Demand", circ: 3000 },
-{ id: 8, emoji: "🥈", name: "Silver Hallows Jail", cat: "Limited", val: 60000, trend: "Stable", status: "Fair", hist:, info: "Halloween Event • 8/10 Demand", circ: 3500 },
-{ id: 9, emoji: "💃", name: "Friday", cat: "Emote", val: 55000, trend: "Rising", status: "Overpaid", hist:, info: "Daily Shop • 9/10 Demand", circ: 1400 },
-{ id: 10, emoji: "🍔", name: "Cheezburger", cat: "Event", val: 50000, trend: "Unstable", status: "Underpaid", hist:, info: "Retro Pass • 8/10 Demand", circ: 15000 },
-{ id: 11, emoji: "🎃", name: "Hallows Jail", cat: "Limited", val: 45000, trend: "Stable", status: "Underpaid", hist:, info: "Halloween Event • 7/10 Demand", circ: 9000 },
-{ id: 12, emoji: "☁️", name: "Cloudy Emote", cat: "Emote", val: 45000, trend: "Rising", status: "Overpaid", hist: [30, 33.5, 37, 41, 45], info: "Daily Shop • 8/10 Demand", circ: 1800 },
-{ id: 13, emoji: "🎁", name: "Red Gift", cat: "Event", val: 44000, trend: "Unstable", status: "Underpaid", hist:, info: "Xmas Event • 7/10 Demand", circ: 12000 },
-{ id: 14, emoji: "🕺", name: "So Retro", cat: "Emote", val: 40000, trend: "Rising", status: "Overpaid", hist:, info: "Retro Emote • 7/10 Demand", circ: 8500 },
-{ id: 15, emoji: "🟦", name: "Blue Gift", cat: "Event", val: 39000, trend: "Unstable", status: "Underpaid", hist:, info: "Xmas Event • 7/10 Demand", circ: 13000 },
-{ id: 16, emoji: "🟩", name: "Green Gift", cat: "Event", val: 38000, trend: "Stable", status: "Fair", hist:, info: "Xmas Event • 6/10 Demand", circ: 15000 },
-{ id: 17, emoji: "👻", name: "Phantom TNT", cat: "Event", val: 35000, trend: "Stable", status: "Fair", hist:, info: "Halloween Event • 6/10 Demand", circ: 14000 },
-{ id: 18, emoji: "🔥", name: "Fiery Adminium", cat: "Skin", val: 30000, trend: "Stable", status: "Fair", hist:, info: "Adminium Skin • 7/10 Demand", circ: 2200 },
-{ id: 19, emoji: "🥟", name: "Eggroll", cat: "Event", val: 30000, trend: "Stable", status: "Fair", hist:, info: "Event Item • 6/10 Demand", circ: 20000 },
-{ id: 20, emoji: "🚀", name: "Jetpack", cat: "Gear", val: 30000, trend: "Stable", status: "Fair", hist:, info: "Rare Gear • 4/10 Demand", circ: 16000 },
-{ id: 21, emoji: "🍰", name: "Cake Plate", cat: "Event", val: 28000, trend: "Stable", status: "Fair", hist:, info: "Event Item • 6/10 Demand", circ: 16000 },
-{ id: 22, emoji: "☣️", name: "Infected Adminium", cat: "Skin", val: 26000, trend: "Stable", status: "Fair", hist:, info: "Adminium Skin • 7/10 Demand", circ: 2500 }
+"🟩|Green Gift|Event|38000|Stable|38,38,38,38,38|Xmas Event • 6/10 Demand|15000",
+"👻|Phantom TNT|Event|35000|Stable|35,35,35,35,35|Halloween Event • 6/10 Demand|14000",
+"🔥|Fiery Adminium|Skin|30000|Stable|30,30,30,30,30|Adminium Skin • 7/10 Demand|2200",
+"🥟|Eggroll|Event|30000|Stable|30,30,30,30,30|Event Item • 6/10 Demand|20000",
+"🚀|Jetpack|Gear|30000|Stable|30,30,30,30,30|Rare Gear • 4/10 Demand|16000",
+"🍰|Cake Plate|Event|28000|Stable|28,28,28,28,28|Event Item • 6/10 Demand|16000",
+"☣️|Infected Adminium|Skin|26000|Stable|26,26,26,26,26|Adminium Skin • 7/10 Demand|2500"
 ];
-var cats = [];
-for (var i = 0; i < items.length; i++) {
-if (cats.indexOf(items[i].cat) === -1) cats.push(items[i].cat);
+var items = [];
+for (var i = 0; i < raw.length; i++) {
+var p = raw[i].split("|");
+var hist = p[5].split(",").map(Number);
+var first = hist[0], last = hist[hist.length - 1];
+var status = (p[4] === "Rising" || last > first) ? "Overpaid" : (p[4] === "Unstable" || last < first) ? "Underpaid" : "Fair";
+items.push({ id: i, emoji: p[0], name: p[1], cat: p[2], val: Number(p[3]), trend: p[4], status: status, hist: hist, info: p[6], circ: Number(p[7]) });
 }
-for (var j = 0; j < cats.length; j++) {
+var cats = [];
+for (var j = 0; j < items.length; j++) {
+if (cats.indexOf(items[j].cat) === -1) cats.push(items[j].cat);
+}
+for (var m = 0; m < cats.length; m++) {
 var o = document.createElement("option");
-o.value = cats[j];
-o.textContent = cats[j];
+o.value = cats[m];
+o.textContent = cats[m];
 document.getElementById("cat").appendChild(o);
 }
 function svgLine(pts, big) {
