@@ -162,8 +162,7 @@
       "☁️|Cloudy Emote|Emote|45000|Rising|30,33.5,37,41,45|Daily Shop • 8/10 Demand|1800",
       "🎁|Red Gift|Event|44000|Unstable|60,55,51,48,44|Xmas Event • 7/10 Demand|12000",
       "🕺|So Retro|Emote|40000|Rising|28,31,34,37,40|Retro Emote • 7/10 Demand|8500",
-      "🟦|Blue Gift|Event|39000|Unstable|52,48,45,42,39|Xmas Event • 7/10 Demand|13000",
-Use code with caution.
+"🟦|Blue Gift|Event|39000|Unstable|52,48,45,42,39|Xmas Event • 7/10 Demand|13000",
 "🟩|Green Gift|Event|38000|Stable|38,38,38,38,38|Xmas Event • 6/10 Demand|15000",
 "👻|Phantom TNT|Event|35000|Stable|35,35,35,35,35|Halloween Event • 6/10 Demand|14000",
 "🔥|Fiery Adminium|Skin|30000|Stable|30,30,30,30,30|Adminium Skin • 7/10 Demand|2200",
@@ -172,63 +171,67 @@ Use code with caution.
 "🍰|Cake Plate|Event|28000|Stable|28,28,28,28,28|Event Item • 6/10 Demand|16000",
 "☣️|Infected Adminium|Skin|26000|Stable|26,26,26,26,26|Adminium Skin • 7/10 Demand|2500"
 ];
-var items = [];
-for (var i = 0; i < raw.length; i++) {
-var p = raw[i].split("|");
-var hist = p[5].split(",").map(Number);
-var first = hist[0], last = hist[hist.length - 1];
-var status = (p[4] === "Rising" || last > first) ? "Overpaid" : (p[4] === "Unstable" || last < first) ? "Underpaid" : "Fair";
-items.push({ id: i, emoji: p[0], name: p[1], cat: p[2], val: Number(p[3]), trend: p[4], status: status, hist: hist, info: p[6], circ: Number(p[7]) });
-}
+var items = raw.map(function (line, i) {
+var p = line.split("|");
+var emoji = p.shift();
+var name = p.shift();
+var cat = p.shift();
+var val = Number(p.shift());
+var trend = p.shift();
+var histStr = p.shift();
+var info = p.shift();
+var circ = Number(p.shift());
+var hist = histStr.split(",").map(Number);
+var first = hist.slice(0, 1).pop();
+var last = hist.slice(-1).pop();
+var status = (trend === "Rising" || last > first) ? "Overpaid" : (trend === "Unstable" || last < first) ? "Underpaid" : "Fair";
+return { id: i, emoji: emoji, name: name, cat: cat, val: val, trend: trend, status: status, hist: hist, info: info, circ: circ };
+});
 var cats = [];
-for (var j = 0; j < items.length; j++) {
-if (cats.indexOf(items[j].cat) === -1) cats.push(items[j].cat);
-}
-for (var m = 0; m < cats.length; m++) {
+items.forEach(function (x) { if (cats.indexOf(x.cat) === -1) cats.push(x.cat); });
+cats.forEach(function (c) {
 var o = document.createElement("option");
-o.value = cats[m];
-o.textContent = cats[m];
+o.value = c;
+o.textContent = c;
 document.getElementById("cat").appendChild(o);
-}
+});
 function svgLine(pts, big) {
 var w = big ? 440 : 90, h = big ? 150 : 24, pad = big ? 24 : 4;
 var min = Math.min.apply(null, pts), max = Math.max.apply(null, pts), r = max - min || 1;
-var first = pts[0], last = pts[pts.length - 1];
+var first = pts.slice(0, 1).pop(), last = pts.slice(-1).pop();
 var col = last > first ? "#10b981" : last < first ? "#ef4444" : "#38bdf8";
 var poly = "", dots = "";
-for (var k = 0; k < pts.length; k++) {
+pts.forEach(function (v, k) {
 var x = (pad + (k / (pts.length - 1)) * (w - pad * 2)).toFixed(1);
-var y = (h - pad - ((pts[k] - min) / r) * (h - pad * 2)).toFixed(1);
+var y = (h - pad - ((v - min) / r) * (h - pad * 2)).toFixed(1);
 poly += x + "," + y + " ";
 dots += '';
-if (big) dots += '' + pts[k] + 'k';
-}
+if (big) dots += '' + v + 'k';
+});
 return '' + dots + '';
 }
 function drawList() {
 var q = document.getElementById("q").value.toLowerCase();
 var c = document.getElementById("cat").value;
 var s = document.getElementById("stat").value;
-var html = "";
-for (var k = 0; k < items.length; k++) {
-var x = items[k];
-if (x.name.toLowerCase().indexOf(q) !== -1 && (c === "ALL" || x.cat === c) && (s === "ALL" || x.status === s)) {
-html += '' +
+document.getElementById("grid").innerHTML = items.filter(function (x) {
+return x.name.toLowerCase().indexOf(q) !== -1 && (c === "ALL" || x.cat === c) && (s === "ALL" || x.status === s);
+}).map(function (x) {
+return '' +
 '' + x.emoji + '' + x.name + '' + x.cat + ' • ' + x.info + '' +
 '' + x.val.toLocaleString() + '' + x.status + '' +
 'Circ: ' + x.circ.toLocaleString() + '' + x.trend + '' +
 '' + svgLine(x.hist, false) + '' +
 '';
-}
-}
-document.getElementById("grid").innerHTML = html;
+}).join("");
 }
 document.getElementById("grid").onclick = function (e) {
 var card = e.target.closest(".card");
 if (!card) return;
-var x = items[Number(card.getAttribute("data-id"))];
+var id = Number(card.getAttribute("data-id"));
+var x = items.find(function (item) { return item.id === id; });
 if (!x) return;
-var first = x.hist[0], last = x.hist[x.hist.length - 1];
+var first = x.hist.slice(0, 1).pop(), last = x.hist.slice(-1).pop();
 var dir = last > first ? "▲ UP (Rising)" : last < first ? "▼ DOWN (Dropping)" : "▬ FLAT (Stable)";
 document.getElementById("mTitle").textContent = x.emoji + " " + x.name;
 document.getElementById("mGraph").innerHTML = svgLine(x.hist, true);
@@ -257,14 +260,11 @@ function renderChips(searchId, boxId) {
 var globalTerm = document.getElementById("calcGlobalSearch").value.toLowerCase();
 var sideTerm = document.getElementById(searchId).value.toLowerCase();
 var term = sideTerm || globalTerm;
-var html = "";
-for (var k = 0; k < items.length; k++) {
-var x = items[k];
-if (x.name.toLowerCase().indexOf(term) !== -1 || x.cat.toLowerCase().indexOf(term) !== -1) {
-html += '' + x.emoji + ' ' + x.name + ' (' + (x.val / 1000) + 'k)';
-}
-}
-document.getElementById(boxId).innerHTML = html;
+document.getElementById(boxId).innerHTML = items.filter(function (x) {
+return x.name.toLowerCase().indexOf(term) !== -1 || x.cat.toLowerCase().indexOf(term) !== -1;
+}).map(function (x) {
+return '' + x.emoji + ' ' + x.name + ' (' + (x.val / 1000) + 'k)';
+}).join("");
 }
 function refreshAllChips() {
 renderChips("ySearch", "yChips");
@@ -276,13 +276,11 @@ document.getElementById("tSearch").oninput = function () { renderChips("tSearch"
 refreshAllChips();
 function drawCalc() {
 function side(arr, listId, totId, key) {
-var sum = 0, html = "";
-for (var k = 0; k < arr.length; k++) {
-sum += arr[k].val;
-html += '' + arr[k].emoji + ' ' + arr[k].name + '' + arr[k].val.toLocaleString() + '✕';
-}
+var sum = arr.reduce(function (a, b) { return a + b.val; }, 0);
 document.getElementById(totId).textContent = sum.toLocaleString();
-document.getElementById(listId).innerHTML = html;
+document.getElementById(listId).innerHTML = arr.map(function (x, k) {
+return '' + x.emoji + ' ' + x.name + '' + x.val.toLocaleString() + '✕';
+}).join("");
 return sum;
 }
 var y = side(yArr, "yList", "yTot", "y");
@@ -296,11 +294,15 @@ else { vt.textContent = "FAIR TRADE (" + (diff >= 0 ? "+" : "") + diff.toLocaleS
 }
 document.getElementById("yChips").onclick = function (e) {
 var b = e.target.closest(".chip");
-if (b) { yArr.push(items[Number(b.getAttribute("data-id"))]); drawCalc(); }
+if (!b) return;
+var found = items.find(function (item) { return item.id === Number(b.getAttribute("data-id")); });
+if (found) { yArr.push(found); drawCalc(); }
 };
 document.getElementById("tChips").onclick = function (e) {
 var b = e.target.closest(".chip");
-if (b) { tArr.push(items[Number(b.getAttribute("data-id"))]); drawCalc(); }
+if (!b) return;
+var found = items.find(function (item) { return item.id === Number(b.getAttribute("data-id")); });
+if (found) { tArr.push(found); drawCalc(); }
 };
 document.getElementById("viewCalc").onclick = function (e) {
 var d = e.target.closest(".del");
@@ -321,12 +323,9 @@ if (!chatMsgs.length) {
 feed.innerHTML = 'No messages yet. Post the first trade!';
 return;
 }
-var html = "";
-for (var k = 0; k < chatMsgs.length; k++) {
-var m = chatMsgs[k];
-html += '@' + esc(m.user) + '' + esc(m.time) + '' + esc(m.text) + '';
-}
-feed.innerHTML = html;
+feed.innerHTML = chatMsgs.map(function (m) {
+return '@' + esc(m.user) + '' + esc(m.time) + '' + esc(m.text) + '';
+}).join("");
 feed.scrollTop = feed.scrollHeight;
 }
 function loadChat() {
@@ -338,7 +337,7 @@ document.getElementById("chatFeed").innerHTML = 'Firebase Error: ' + esc(data.er
 return;
 }
 if (!data) { chatMsgs = []; drawChat(); return; }
-chatMsgs = Object.keys(data).map(function (k) { return data[k]; });
+chatMsgs = Object.values(data);
 drawChat();
 })
 .catch(function (err) {
@@ -377,4 +376,4 @@ switchTab("btnChat", "viewChat");
 };
 setInterval(loadChat, 3000);
 drawList();
-loadChat()
+loadChat();
